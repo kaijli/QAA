@@ -26,8 +26,16 @@ from /projects/bgmp/kli8/bioinformatics/Bi622/Demultiplex/Assignment-the-first/q
 seq length is 101
 filename, readlength, iteration, result directory
 $ sbatch /projects/bgmp/kli8/bioinformatics/Bi622/Demultiplex/Assignment-the-first/qdist.srun 
-    -f /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz
-    -r 101
-    -i 1
-    -d /projects/bgmp/kli8/bioinformatics/Bi622/QAA
+    /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz
+    101
+    2
+    /projects/bgmp/kli8/bioinformatics/Bi622/QAA
 running qdist on both files to see how they compare to fastqc files. 
+finished running. timer gave 11:55.70
+
+making conda environment
+$ conda create --name bgmp-qaa python=3.10
+$ conda activate bgmp-qaa
+$ conda install cutadapt
+$ conda install Trimmomatic
+also star, numpy, pysam, matplotlib, htseq
