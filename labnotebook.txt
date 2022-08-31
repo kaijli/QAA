@@ -2,17 +2,28 @@
 *            QAA           *
 ----------------------------
 
-
 Kaitlyn L       4_2C_mbnl_S4_L008       4_2C_mbnl_S4_L008
 
 data location 
 /projects/bgmp/shared/2017_sequencing/demultiplexed/
+/projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz 
+/projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
 
 Run interactive session in talaps:
 $ srun --account=bgmp --partition=bgmp --nodes=1 --ntasks-per-node=1 --time=1:00:00 --cpus-per-task=1 --pty bash
 
+------------------------------------------------------------------------------------------------------------------------
+08/31/2022
+------------------------------------------------------------------------------------------------------------------------
+____________________________________________________________________________________________________
+# Part 1 – Read quality score distributions
+____________________________________________________________________________________________________
+
 ran 
-$ /usr/bin/time -v fastqc /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz --outdir=/projects/bgmp/kli8/bioinformatics/Bi622/QAA
+$ /usr/bin/time -v fastqc 
+    /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz 
+    /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
+    --outdir=/projects/bgmp/kli8/bioinformatics/Bi622/QAA
 needed to specify output directory otherwise it will try to write to original data directory and throw permission error
 timer counted 1:49.78
 
@@ -33,9 +44,173 @@ $ sbatch /projects/bgmp/kli8/bioinformatics/Bi622/Demultiplex/Assignment-the-fir
 running qdist on both files to see how they compare to fastqc files. 
 finished running. timer gave 11:55.70
 
+to check for how to load modules:
+    module spider [module name]
+
 making conda environment
 $ conda create --name bgmp-qaa python=3.10
 $ conda activate bgmp-qaa
 $ conda install cutadapt
 $ conda install Trimmomatic
 also star, numpy, pysam, matplotlib, htseq
+
+------------------------------------------------------------------------------------------------------------------------
+08/31/2022
+------------------------------------------------------------------------------------------------------------------------
+from previous section:
+bioinformatics/Bi623/QAA/output/qdist_21831678.err
+Command being timed: "python 
+    /projects/bgmp/kli8/bioinformatics/Bi622/Demultiplex/Assignment-the-first/distr_q.py 
+    -f /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz 
+    -r 101 
+    -i 2 
+    -d /projects/bgmp/kli8/bioinformatics/Bi622/QAA"
+	User time (seconds): 698.82
+
+    ^ this made hist2. rename hist2 to 4_2C_mbnl_S4_L008_R1_hist.png
+    hist 3 is thus 4_2C_mbnl_S4_L008_R2_hist.png
+
+Command being timed: "python 
+    /projects/bgmp/kli8/bioinformatics/Bi622/Demultiplex/Assignment-the-first/distr_q.py 
+    -f /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
+    -r 101 
+    -i 3 
+    -d /projects/bgmp/kli8/bioinformatics/Bi622/QAA"
+	User time (seconds): 713.77
+____________________________________________________________________________________________________
+# Part 2 – Adaptor trimming comparison
+____________________________________________________________________________________________________
+from fastqc_data.txt of R2 
+    >>Overrepresented sequences	warn
+    #Sequence	Count	Percentage	Possible Source
+    CCTCACCCGGCCCGGACACGGACAGGATTGACAGATTGATAGCTCTTTCT	11643	0.12566263484206205	No Hit
+    CCTGCCAGTAGCATATGCTTGTCTCAAAGATTAAGCCATGCATGTCTAAG	10455	0.1128405777955646	No Hit
+    >>END_MODULE
+However, from Leslie and illumina support:
+    R1: ```AGATCGGAAGAGCACACGTCTGAACTCCAGTCA```
+    
+    R2: ```AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT```
+Will use the ones recommended by illumina. 
+
+from cutadapt --help
+cutadapt removes adapter sequences from high-throughput sequencing reads.
+
+Usage:
+    cutadapt -a ADAPTER [options] [-o output.fastq] input.fastq
+
+For paired-end reads:
+    cutadapt -a ADAPT1 -A ADAPT2 [options] -o out1.fastq -p out2.fastq in1.fastq in2.fastq
+
+Replace "ADAPTER" with the actual sequence of your 3' adapter.
+
+before using cutadapt, checked for adapters in every line using:
+$ grep --color  AGATCGGAAGAGCACACGTCTGAACTCCAGTCA /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz 
+$ grep --color  AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
+
+
+ran
+$ cutadapt -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -o cutadapt_results/4_2C_mbnl_S4_L008_R1.fastq /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz 
+$ cutadapt -a AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT -o cutadapt_results/4_2C_mbnl_S4_L008_R2.fastq /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
+
+reran the grep code from above on the results of cutadapt, and no more adapter sequences were found. 
+however, the cutadapt results above assume that they're single end reads. also running paired end cutadapts just in case. 
+$ /usr/bin/time -v 
+    cutadapt -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA 
+    -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT 
+    -o cutadapt_results/paired_4_2C_mbnl_S4_L008_R1.fastq 
+    -p cutadapt_results/paired_4_2C_mbnl_S4_L008_R2.fastq 
+    /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz 
+    /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
+
+Trimmomatic parameters
+
+PE [-version] [-threads <threads>] [-phred33|-phred64] [-trimlog <trimLogFile>] [-summary <statsSummaryFile>] [-quiet] [-validatePairs] [-basein <inputBase> | <inputFile1> <inputFile2>] [-baseout <outputBase> | <outputFile1P> <outputFile1U> <outputFile2P> <outputFile2U>] <trimmer1>...
+   or: 
+SE [-version] [-threads <threads>] [-phred33|-phred64] [-trimlog <trimLogFile>] [-summary <statsSummaryFile>] [-quiet] <inputFile> <outputFile> <trimmer1>...
+
+The current trimming steps are:
+ILLUMINACLIP: Cut adapter and other illumina-specific sequences from the read.
+SLIDINGWINDOW: Performs a sliding window trimming approach. It starts
+scanning at the 5‟ end and clips the read once the average quality within the window
+falls below a threshold.
+MAXINFO: An adaptive quality trimmer which balances read length and error rate to
+maximise the value of each read
+LEADING: Cut bases off the start of a read, if below a threshold quality
+TRAILING: Cut bases off the end of a read, if below a threshold quality
+CROP: Cut the read to a specified length by removing bases from the end
+HEADCROP: Cut the specified number of bases from the start of the read
+MINLEN: Drop the read if it is below a specified length
+AVGQUAL: Drop the read if the average quality is below the specified level
+TOPHRED33: Convert quality scores to Phred-33
+TOPHRED64: Convert quality scores to Phred-64
+
+we want:
+LEADING, TRAILING, SLIDINGWINDOW, MINLEN
+
+examples:
+
+Paired End
+java -jar trimmomatic-0.30.jar PE s_1_1_sequence.txt.gz s_1_2_sequence.txt.gz
+lane1_forward_paired.fq.gz lane1_forward_unpaired.fq.gz lane1_reverse_paired.fq.gz
+lane1_reverse_unpaired.fq.gz ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 LEADING:3
+TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36
+
+This will perform the following in this order
+Remove Illumina adapters provided in the TruSeq3-PE.fa file (provided). Initially
+Trimmomatic will look for seed matches (16 bases) allowing maximally 2
+mismatches. These seeds will be extended and clipped if in the case of paired end
+reads a score of 30 is reached (about 50 bases), or in the case of single ended reads a
+score of 10, (about 17 bases).
+Remove leading low quality or N bases (below quality 3)
+Remove trailing low quality or N bases (below quality 3)
+Scan the read with a 4-base wide sliding window, cutting when the average quality per
+base drops below 15
+Drop reads which are less than 36 bases long after these steps
+
+Single End
+java -jar trimmomatic-0.30.jar SE s_1_1_sequence.txt.gz lane1_forward.fq.gz
+ILLUMINACLIP:TruSeq3-SE:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15
+MINLEN:36
+
+our parameters will be 
+    - LEADING: quality of 3
+    - TRAILING: quality of 3
+    - SLIDING WINDOW: window size of 5 and required quality of 15
+    - MINLENGTH: 35 bases
+
+for single end:
+$ /usr/bin/time -v trimmomatic SE cutadapt_results/4_2C_mbnl_S4_L008_R1.fastq trimmomatic_results/4_2C_mbnl_S4_L008_R1.fastq LEADING:3 TRAILING:3 SLIDINGWINDOW:5:15 MINLEN:35 
+$ /usr/bin/time -v trimmomatic SE cutadapt_results/4_2C_mbnl_S4_L008_R2.fastq trimmomatic_results/4_2C_mbnl_S4_L008_R2.fastq LEADING:3 TRAILING:3 SLIDINGWINDOW:5:15 MINLEN:35 
+
+for paired end
+$ /usr/bin/time -v trimmomatic PE cutadapt_results/paired_4_2C_mbnl_S4_L008_R1.fastq cutadapt_results/paired_4_2C_mbnl_S4_L008_R2.fastq trimmomatic_results/paired_4_2C_mbnl_S4_L008_R1.fastq trimmomatic_results/paired_4_2C_mbnl_S4_L008_R2.fastq LEADING:3 TRAILING:3 SLIDINGWINDOW:5:15 MINLEN:35
+
+____________________________________________________________________________________________________
+# Part 3 – Alignment and strand-specificity
+____________________________________________________________________________________________________
+load modules
+    - star
+    - numpy
+    - pysam
+    - matplotlib
+    - htseq
+
+for star:
+    STAR/2.5.3a-intel-2017b
+    ml racs-eb/1          #ml is built in alias for module load
+
+for numpy:
+    racs-eb/1
+
+for pysam:
+    a lot of versions. Pysam/0.13.0-intel-2017b-Python-3.6.3 seems to be the most up to date
+
+for matplotlib:
+    matplotlib/2.1.1-intel-2017b-Python-3.6.3
+
+for htseq: 
+    HTSeq/0.9.1-Python-3.6.1
+    easybuild  icc/2017.1.132-GCC-6.3.0-2.27  impi/2017.1.132
+      easybuild  ifort/2017.1.132-GCC-6.3.0-2.27  impi/2017.1.132
+      eb-hide/1  icc/2017.1.132-GCC-6.3.0-2.27  impi/2017.1.132
+      eb-hide/1  ifort/2017.1.132-GCC-6.3.0-2.27  impi/2017.1.132
