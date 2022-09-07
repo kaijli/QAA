@@ -1,0 +1,19 @@
+Results 
+Number of reads mapped 
+
+reverse:	
+
+stranded:	
+
+Total reads
+
+reverse:	
+
+stranded:	
+
+Percent of reads mapped
+
+reverse:	 %
+
+stranded:	 %
+

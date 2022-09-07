@@ -335,3 +335,17 @@ now attempting to run htseq-count.
     $ /usr/bin/time -v htseq-count mus.Aligned.out.sam Mus_musculus.GRCm39.107.gtf --stranded=reverse > reverse_htseq-count
 
 wrote results to files by piping and wrote batch script for submission. 
+wrote a script for genecounts that also wrote a file of the results. 
+    /projects/bgmp/kli8/bioinformatics/Bi623/QAA/genecount.srun
+
+
+results
+reverse mapped: 7237594
+stranded mapped: 361716
+reverse total: 8980380
+stranded total: 8980380
+
+reverse: 80.59%
+stranded: 4.03%
+
+this is stranded, because if they weren't, then they'd be around the same percentage. 
