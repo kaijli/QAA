@@ -331,5 +331,7 @@ she said i can write at the top of my report in big letters that she gave me
 the same file twice.
 
 now attempting to run htseq-count. 
-    $ htseq-count mus.Aligned.out.sam Mus_musculus.GRCm39.107.gtf --stranded=yes -c stranded_htseq-count.sam
-    $ /usr/bin/time -v htseq-count mus.Aligned.out.sam Mus_musculus.GRCm39.107.gtf --stranded=reverse -c reverse_htseq-count.sam
+    $ /usr/bin/time -v htseq-count mus.Aligned.out.sam Mus_musculus.GRCm39.107.gtf --stranded=yes > stranded_htseq-count
+    $ /usr/bin/time -v htseq-count mus.Aligned.out.sam Mus_musculus.GRCm39.107.gtf --stranded=reverse > reverse_htseq-count
+
+wrote results to files by piping and wrote batch script for submission. 
