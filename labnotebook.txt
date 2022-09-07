@@ -349,3 +349,22 @@ reverse: 80.59%
 stranded: 4.03%
 
 this is stranded, because if they weren't, then they'd be around the same percentage. 
+
+
+reran htseq using the bash script - 19 minutes total
+    Command being timed: "htseq-count mus.Aligned.out.sam Mus_musculus.GRCm39.107.gtf --stranded=yes"
+	User time (seconds): 568.90
+	System time (seconds): 3.13
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:32.73
+    Command being timed: "htseq-count mus.Aligned.out.sam Mus_musculus.GRCm39.107.gtf --stranded=reverse"
+	User time (seconds): 595.90
+	System time (seconds): 2.81
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:58.73
+
+running genecount on the fresh results. 
+the main issue with a lot of trying to calculate the genecount percentages was the user/bin/time -v command
+and the second issue was that expr from bash doesn't do float math, so i had to use a little python.
+
+moving onto R. 

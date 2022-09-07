@@ -15,23 +15,24 @@
 
 conda activate bgmp-qaa
 
-/usr/bin/time -v grep -v "^__" htseq_results/4_2C_mbnl_S4_L008_reverse.genecount | awk '{sum+=$2} END {rev=$(sum)}'
-/usr/bin/time -v grep -v "^__" htseq_results/4_2C_mbnl_S4_L008_stranded.genecount | awk '{sum+=$2} END {str=$(sum)}'
+rev=$(grep -v "^__" htseq_results/4_2C_mbnl_S4_L008_reverse.genecount | awk '{sum+=$2} END {print sum}')
+str=$(grep -v "^__" htseq_results/4_2C_mbnl_S4_L008_stranded.genecount | awk '{sum+=$2} END {print sum}')
 
-/usr/bin/time -v awk '{sum+=$2} END {revtot=$(sum)}' htseq_results/4_2C_mbnl_S4_L008_reverse.genecount
-/usr/bin/time -v awk '{sum+=$2} END {strtot=$(sum)}' htseq_results/4_2C_mbnl_S4_L008_stranded.genecount
+revtot=$(awk '{sum+=$2} END {print sum}' htseq_results/4_2C_mbnl_S4_L008_reverse.genecount)
+strtot=$(awk '{sum+=$2} END {print sum}' htseq_results/4_2C_mbnl_S4_L008_stranded.genecount)
 
-/usr/bin/time -v revper=$(expr $rev / $revtot \* 100)
-/usr/bin/time -v strper=$(expr $str / $strtot \* 100)
+revper=$(python -c "print($rev/$revtot*100)")
+strper=$(python -c "print($str/$strtot*100)")
 
-echo -e "Results \nNumber of reads mapped \n" > genecount_results.txt
-echo -e "reverse:\t$rev\n" >> genecount_results.txt
+echo -e "Results \nNumber of reads mapped" > genecount_results.txt
+echo -e "reverse:\t$rev" >> genecount_results.txt
 echo -e "stranded:\t$str\n" >> genecount_results.txt
-echo -e "Total reads\n" >> genecount_results.txt
-echo -e "reverse:\t$revtot\n" >> genecount_results.txt
+echo -e "Total reads" >> genecount_results.txt
+echo -e "reverse:\t$revtot" >> genecount_results.txt
 echo -e "stranded:\t$strtot\n" >> genecount_results.txt
-echo -e "Percent of reads mapped\n" >> genecount_results.txt
-echo -e "reverse:\t$revper %\n" >> genecount_results.txt
-echo -e "stranded:\t$strper %\n" >> genecount_results.txt
+echo -e "Percent of reads mapped" >> genecount_results.txt
+echo -e "reverse:\t$revper %" >> genecount_results.txt
+echo -e "stranded:\t$strper %" >> genecount_results.txt
+echo "done"
 
 exit 
