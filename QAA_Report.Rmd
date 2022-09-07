@@ -1,0 +1,38 @@
+---
+title: "QAA Report"
+author: "Kaitlyn Li"
+date: "2022-09-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Only 1 set of files was given for analysis
+## Kaitlyn L       4_2C_mbnl_S4_L008       4_2C_mbnl_S4_L008
+
+```{r out.width="linewidth", fig.align="center", fig.cap=""}
+knitr::include_graphics("4_2C_mbnl_S4_L008_R1_hist.png")
+```
+
+```{r out.width="linewidth", fig.align="center", fig.cap=""}
+knitr::include_graphics("4_2C_mbnl_S4_L008_R2_hist.png")
+```
+
+```{r out.width="linewidth", fig.align="center", fig.cap=""}
+knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R1_001_fastqc/Images/per_base_n_content.png")
+```
+
+```{r out.width="linewidth", fig.align="center", fig.cap=""}
+knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R1_001_fastqc/Images/per_base_quality.png")
+```
+
+```{r out.width="linewidth", fig.align="center", fig.cap=""}
+knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R2_001_fastqc/Images/per_base_n_content.png")
+```
+
+```{r out.width="linewidth", fig.align="center", fig.cap=""}
+knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R2_001_fastqc/Images/per_base_quality.png")
+```
