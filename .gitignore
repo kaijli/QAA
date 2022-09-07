@@ -1,5 +1,9 @@
-output/
-cutadapt_results/
+*/
+*.gtf
+*.out
+*.sam
+*.fastq
+*.tab
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

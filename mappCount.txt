@@ -1,0 +1,2 @@
+17172683 sequences properly mapped to reference genome.
+1751937 sequences not mapped to reference genome.

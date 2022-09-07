@@ -9,9 +9,11 @@ data location
 /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz 
 /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
 
-Run interactive session in talaps:
+Run interactive session in talapas:
 $ srun --account=bgmp --partition=bgmp --nodes=1 --ntasks-per-node=1 --time=1:00:00 --cpus-per-task=1 --pty bash
 
+for each command:
+$ /usr/bin/time -v 
 ------------------------------------------------------------------------------------------------------------------------
 08/31/2022
 ------------------------------------------------------------------------------------------------------------------------
@@ -70,7 +72,8 @@ Command being timed: "python
     ^ this made hist2. rename hist2 to 4_2C_mbnl_S4_L008_R1_hist.png
     hist 3 is thus 4_2C_mbnl_S4_L008_R2_hist.png
 
-Command being timed: "python 
+Command being timed:
+    "python 
     /projects/bgmp/kli8/bioinformatics/Bi622/Demultiplex/Assignment-the-first/distr_q.py 
     -f /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz 
     -r 101 
@@ -185,6 +188,51 @@ $ /usr/bin/time -v trimmomatic SE cutadapt_results/4_2C_mbnl_S4_L008_R2.fastq tr
 for paired end
 $ /usr/bin/time -v trimmomatic PE cutadapt_results/paired_4_2C_mbnl_S4_L008_R1.fastq cutadapt_results/paired_4_2C_mbnl_S4_L008_R2.fastq trimmomatic_results/paired_4_2C_mbnl_S4_L008_R1.fastq trimmomatic_results/paired_4_2C_mbnl_S4_L008_R2.fastq LEADING:3 TRAILING:3 SLIDINGWINDOW:5:15 MINLEN:35
 
+------------------------------------------------------------------------------------------------------------------------
+09/01/2022
+------------------------------------------------------------------------------------------------------------------------
+used pigz to zip the files in cutadapt_results to immediately make zipped outputs for trimmomatic_results
+
+From the documentation: Paired-end mode requires 2 input files (for forward and reverse reads) and 4 output files (for
+forward paired, forward unpaired, reverse paired and reverse unpaired reads).
+
+for paired end, modified
+$ /usr/bin/time -v trimmomatic PE cutadapt_results/paired_4_2C_mbnl_S4_L008_R1.fastq.gz cutadapt_results/paired_4_2C_mbnl_S4_L008_R2.fastq.gz trimmomatic_results/paired_fwd_4_2C_mbnl_S4_L008_R1.fastq.gz trimmomatic_results/unpaired_fwd_4_2C_mbnl_S4_L008_R1.fastq.gz trimmomatic_results/paired_rev_4_2C_mbnl_S4_L008_R2.fastq.gz trimmomatic_results/unpaired_rev_4_2C_mbnl_S4_L008_R2.fastq.gz LEADING:3 TRAILING:3 SLIDINGWINDOW:5:15 MINLEN:35
+time : 7:32.09
+
+$ zcat /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz | grep -c '@'
+9265284
+
+$ zcat /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz | grep -c '@'
+9265284
+
+------------------------------------------------------------------------------------------------------------------------
+09/06/2022
+------------------------------------------------------------------------------------------------------------------------
+Still  need to plot trimmed read length distributions for R1 and R2 reads on the same plot. 
+
+redoing line counts after trimmomatic
+
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/4_2C_mbnl_S4_L008_R1.fastq.gz | wc -l 
+37005548 / 4 = 9251387 
+
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/4_2C_mbnl_S4_L008_R2.fastq.gz | wc -l 
+35946588 / 4 = 8986647 
+
+back to the question of paired vs unpaired:
+R1 header
+@K00337:83:HJKJNBBXX:8:1101:3782:1191 1:N:0:NACAGCGA+NCGCTGTT
+R2 header
+@K00337:83:HJKJNBBXX:8:1101:3782:1191 2:N:0:NACAGCGA+NCGCTGTT
+
+looks like the 1 and 2 indicate the member of a pair, 1 or 2 (paired-end or mate-pair reads only)
+
+rerunning wc and python on paired results from trimmomatic
+/projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/paired_fwd_4_2C_mbnl_S4_L008_R1.fastq.gz
+35921520/4 = 8980380
+/projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/paired_rev_4_2C_mbnl_S4_L008_R2.fastq.gz
+35921520/4 = 8980380
+
 ____________________________________________________________________________________________________
 # Part 3 – Alignment and strand-specificity
 ____________________________________________________________________________________________________
@@ -214,3 +262,55 @@ for htseq:
       easybuild  ifort/2017.1.132-GCC-6.3.0-2.27  impi/2017.1.132
       eb-hide/1  icc/2017.1.132-GCC-6.3.0-2.27  impi/2017.1.132
       eb-hide/1  ifort/2017.1.132-GCC-6.3.0-2.27  impi/2017.1.132
+
+------------------------------------------------------------------------------------------------------------------------
+09/06/2022
+------------------------------------------------------------------------------------------------------------------------
+getting files from ensembl to make alignment database
+
+in new directory mus/
+$ wget http://ftp.ensembl.org/pub/release-107/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna_sm.primary_assembly.fa.gz
+$ wget http://ftp.ensembl.org/pub/release-107/gtf/mus_musculus/Mus_musculus.GRCm39.107.gtf.gz
+
+ran sbatch on /projects/bgmp/kli8/bioinformatics/Bi621/PS/ps8-kaijli/mkdatabase.srun with some changes to file name input
+however, first run ran error 
+    samtools: /gpfs/projects/bgmp/kli8/miniconda3/envs/bgmp_py310/bin/../lib/libncursesw.so.6: no version information available (required by samtools)
+
+    EXITING because of INPUT ERROR: could not open genomeFastaFile: -
+
+checked installation of SAMTOOLS in terminal, and also installed just in case. 
+looks like --version is the only thing that throws the error.
+samtools also looks like it updated ever since Bi621
+    samtools 1.15.1
+    Using htslib 1.15.1
+
+commented out 'samtools --version' but it still throws one of the errors:
+    EXITING because of INPUT ERROR: could not open genomeFastaFile: -
+
+    Sep 06 13:45:18 ...... FATAL ERROR, exiting
+    Command exited with non-zero status 104
+        Command being timed: "STAR --runThreadN 8 --runMode genomeGenerate"
+
+STAR version is still the same. 
+one difference I just noticed is that the fasta intake did not like the .gz file potentially, so i added a zcat. 
+still upset. i'll gunzip i guess. 
+moved .gtf file to one above .fa file. 
+
+$ sbatch /projects/bgmp/kli8/bioinformatics/Bi621/PS/ps8-kaijli/mkdatabase.srun 
+    /projects/bgmp/kli8/bioinformatics/Bi623/QAA/Mus_musculus.GRCm39.dna_sm.ens107.STAR_2.7.1a
+    /projects/bgmp/kli8/bioinformatics/Bi623/QAA/mus/Mus_musculus.GRCm39.dna_sm.primary_assembly.fa
+    /projects/bgmp/kli8/bioinformatics/Bi623/QAA/Mus_musculus.GRCm39.107.gtf
+Submitted batch job 22205874
+still throwing same error 
+    EXITING because of INPUT ERROR: could not open genomeFastaFile: -
+
+i had commented out a bunch of the options for PS8 in the middle of the command
+moved those to a different part of the script and mkdb has been running for 2 minutes now. 
+
+finished successfully
+    Elapsed (wall clock) time (h:mm:ss or m:ss): 18:24.19
+
+ran alignment to paired_fwd_4_2C_mbnl_S4_L008_R1 and paired_rev_4_2C_mbnl_S4_L008_R2
+    $ sbatch /projects/bgmp/kli8/bioinformatics/Bi621/PS/ps8-kaijli/align.srun
+        Submitted batch job 22205955
+        Elapsed (wall clock) time (h:mm:ss or m:ss): 1:21.21
