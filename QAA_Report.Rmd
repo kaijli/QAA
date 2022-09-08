@@ -3,14 +3,13 @@ title: "QAA Report"
 author: "Kaitlyn Li"
 date: "2022-09-07"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-library(tidyverse)
-library(tinytex)
+library(tidyverse) 
 ```
 
 # Only 1 set of files was given for analysis
@@ -21,19 +20,19 @@ Kaitlyn L       4_2C_mbnl_S4_L008       4_2C_mbnl_S4_L008
 
 1. Using ```FastQC``` via the command line on Talapas, produce plots of quality score distributions for R1 and R2 reads. Also, produce plots of the per-base N content, and comment on whether or not they are consistent with the quality score plots.
 
-```{r out.width="80%", fig.align="center", fig.cap="Per Base N Content of R1"}
+```{r out.width="80%", fig.align="center", fig.cap="Fig 1. Per Base N Content of 4_2C_mbnl_S4_L008_R1 from FastQC"}
 knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R1_001_fastqc/Images/per_base_n_content.png")
 ```
 
-```{r out.width="80%", fig.align="center", fig.cap="Per Base Quality of R1"}
+```{r out.width="80%", fig.align="center", fig.cap="Fig 2. Per Base Quality of 4_2C_mbnl_S4_L008_R1 from FastQC"}
 knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R1_001_fastqc/Images/per_base_quality.png")
 ```
 
-```{r out.width="80%", fig.align="center", fig.cap="Per Base N Content of R2"}
+```{r out.width="80%", fig.align="center", fig.cap="Fig 3. Per Base N Content of 4_2C_mbnl_S4_L008_R2 from FastQC"}
 knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R2_001_fastqc/Images/per_base_n_content.png")
 ```
 
-```{r out.width="80%", fig.align="center", fig.cap="Per Base Quality of R2"}
+```{r out.width="80%", fig.align="center", fig.cap="Fig 4. Per Base Quality of 4_2C_mbnl_S4_L008_R2 from FastQC"}
 knitr::include_graphics("fastqc_results/4_2C_mbnl_S4_L008_R2_001_fastqc/Images/per_base_quality.png")
 ```
 
@@ -41,11 +40,11 @@ For R1, the first several reads have a lower base quality than the rest of the r
 
 2. Run your quality score plotting script from your Demultiplexing assignment. (Make sure you're using the "running sum" strategy!!) Describe how the ```FastQC``` quality score distribution plots compare to your own. If different, propose an explanation. Also, does the runtime differ? If so, why?
 
-```{r out.width="80%", fig.align="center", fig.cap="Python Calculated Per Base Quality of R1"}
+```{r out.width="80%", fig.align="center", fig.cap="Fig 5. Python Calculated Per Base Quality of 4_2C_mbnl_S4_L008_R1 from personal python script"}
 knitr::include_graphics("4_2C_mbnl_S4_L008_R1_hist.png")
 ```
 
-```{r out.width="80%", fig.align="center", fig.cap="Python Calculated Per Base Quality of R2"}
+```{r out.width="80%", fig.align="center", fig.cap="Fig 6. Python Calculated Per Base Quality of 4_2C_mbnl_S4_L008_R2 from personal python script"}
 knitr::include_graphics("4_2C_mbnl_S4_L008_R2_hist.png")
 ```
 
@@ -57,33 +56,54 @@ The overall data quality of the library is good, considering the lowest average 
 
 ## Part 2 – Adaptor trimming comparison
 
-5. Using ```cutadapt```, properly trim adapter sequences from your assigned files. Be sure to read how to use ```cutadapt```. Use default settings. What proportion of reads (both R1 and R2) were trimmed?
+5. Using ```cutadapt```, properly trim adapter sequences from your assigned files. Be sure to read how to use ```cutadapt```. Use default settings. What proportion of reads (both R1 and R2) were trimmed?  
 
+Original files  
 
+```{bash eval=FALSE, echo=TRUE}
+$ zcat /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz | wc 
+<!-- 37061136 46326420 2497386340 -->
+$ zcat /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz | wc 
+<!-- 37061136 46326420 2497386340 -->
+```
 
-7. Plot the trimmed read length distributions for both R1 and R2 reads (on the sampe plot). You can produce 2 different plots for your 2 different RNA-seq samples. There are a number of ways you could possibly do this. One useful thing your plot should show, for example, is whether R1s are trimmed more extensively than R2s, or vice versa. Comment on whether you expect R1s and R2s to be adapter-trimmed at different rates. 
+Cutadapt files  
+
+```{bash eval=FALSE, echo=TRUE}
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/cutadapt_results/paired_4_2C_mbnl_S4_L008_R1.fastq.gz | wc
+<!-- 37061136 46320888 2481710968 -->
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/cutadapt_results/paired_4_2C_mbnl_S4_L008_R2.fastq.gz | wc 
+<!-- 37061136 46320932 2481097496 -->
+```
+
+Trimmomatic files  
+```{bash eval=FALSE, echo=TRUE}
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/paired_fwd_4_2C_mbnl_S4_L008_R1.fastq.gz | wc
+<!-- 35921520 44901900 2400616076 -->
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/paired_rev_4_2C_mbnl_S4_L008_R2.fastq.gz | wc
+<!-- 35921520 44901900 2383845486 -->
+```
+
+From line count alone, no records were trimmed using cutadapt. For trimmomatic, 284904 records were cut. Between the original files and the cutadapt files, 5532 (00.01%) characters were cut for R1, and 9265284 (20%) characters were cut for R2. 
+
+7. Plot the trimmed read length distributions for both R1 and R2 reads (on the same plot). You can produce 2 different plots for your 2 different RNA-seq samples. There are a number of ways you could possibly do this. One useful thing your plot should show, for example, is whether R1s are trimmed more extensively than R2s, or vice versa. Comment on whether you expect R1s and R2s to be adapter-trimmed at different rates. 
+
+```{r out.width="80%", fig.align="center", fig.cap="Fig 7. Trimmed Read Length Distributions for 4_2C_mbnl_S4_L008 R1 and R2 from personal python script after running cutadapt and trimmomatic"}
+knitr::include_graphics("hist_r1r2_dict.png")
+```
+
+R2 was trimmed more extensively than R1, as indicated by a higher frequency at lower read lengths for R2. I do expect R1 and R2 to be trimmed at different rates due to degredation of the library over the duration of the sequencing run. From adapters being cut, I would've expected more R1 than R2 adapters cut due to the possibility of sample degredation on R2 that would leave the adapters a shorter than expected length and sequence for the cutadapt software to identify. For the quality trimming, R2 having a higher frequency of shorter read lengths would make sense, again, due to the degredation of the samples. 
 
 
 ## Part 3 – Alignment and strand-specificity
 
 11. Demonstrate convincingly whether or not the data are from “strand-specific” RNA-Seq libraries. Include any commands/scripts used. Briefly describe your evidence, using quantitative statements (e.g. "I propose that these data are/are not strand-specific, because X% of the reads are y, as opposed to z.").
 
+__Table 1. Read Counts from 4_2C_mbnl_S4_L008 on Mouse Genome Assembly, Ensembl Release 107__  
 
+|          | Number of reads Mapped | Total Number of Reads | Percentage Mapped  |
+|----------|------------------------|-----------------------|--------------------|
+| Reverse  | 7237594                | 8980380               | 80.59340473342999% |
+| Stranded | 361716                 | 8980380               | 4.02784737394186%  |
 
-
-## To turn in your work for this assignment
-
-### Upload your:
-- Talapas batch script/code, 
-- FastQC plots, 
-- mapped/unmapped read counts, 
-- counts files generated from htseq-count (in a folder would be nice), 
-- answers to questions, 
-- and any additional plots/code to github. 
-    
-### You should create a pdf file (using Rmarkdown) with a high-level report including:
-- all plots
-- answers to questions
-- read counts (in a nicely formatted table)
-    
-The three parts of the assignment should be clearly labeled. Be sure to title and write a figure legend for each image/graph/table you present. The file should be named `QAA_report.pdf`, and it should be a the top level of your repo.
+This data is strand-specific, as there is a vastly different percentage mapped between the stranded and reverse options when running htseq. If the data was not stranded, then the percentage mapped should be around the same for both run options. Instead, since there is specificity in the percentage mapped, with reverse at 81% and stranded at 4% mapped. 

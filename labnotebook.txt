@@ -367,4 +367,22 @@ running genecount on the fresh results.
 the main issue with a lot of trying to calculate the genecount percentages was the user/bin/time -v command
 and the second issue was that expr from bash doesn't do float math, so i had to use a little python.
 
+Original files 
+$ zcat /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R1_001.fastq.gz | wc 
+37061136 46326420 2497386340
+$ zcat /projects/bgmp/shared/2017_sequencing/demultiplexed/4_2C_mbnl_S4_L008_R2_001.fastq.gz | wc 
+37061136 46326420 2497386340
+
+Cutadapt files  
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/cutadapt_results/paired_4_2C_mbnl_S4_L008_R1.fastq.gz | wc
+37061136 46320888 2481710968
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/cutadapt_results/paired_4_2C_mbnl_S4_L008_R2.fastq.gz | wc 
+37061136 46320932 2481097496
+
+Trimmomatic files  
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/paired_fwd_4_2C_mbnl_S4_L008_R1.fastq.gz | wc
+35921520 44901900 2400616076
+$ zcat /projects/bgmp/kli8/bioinformatics/Bi623/QAA/trimmomatic_results/paired_rev_4_2C_mbnl_S4_L008_R2.fastq.gz | wc
+35921520 44901900 2383845486
+```
 moving onto R. 
