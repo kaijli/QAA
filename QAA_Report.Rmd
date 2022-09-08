@@ -60,6 +60,7 @@ The overall data quality of the library is good, considering the lowest average 
 5. Using ```cutadapt```, properly trim adapter sequences from your assigned files. Be sure to read how to use ```cutadapt```. Use default settings. What proportion of reads (both R1 and R2) were trimmed?
 
 
+
 7. Plot the trimmed read length distributions for both R1 and R2 reads (on the sampe plot). You can produce 2 different plots for your 2 different RNA-seq samples. There are a number of ways you could possibly do this. One useful thing your plot should show, for example, is whether R1s are trimmed more extensively than R2s, or vice versa. Comment on whether you expect R1s and R2s to be adapter-trimmed at different rates. 
 
 
